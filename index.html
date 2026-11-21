@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QUANTUM ALPHA AI | كوانتم ألفا للتحليل اللحظي المتكامل</title>
+<style>
+  :root {
+    --bg: #090D16;
+    --surface: #111827;
+    --surface-2: #1E293B;
+    --border: #283548;
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+    --cyan: #06B6D4;
+    --amber: #F59E0B;
+    --green: #10B981;
+    --red: #EF4444;
+    --purple: #8B5CF6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo-badge {
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: #fff; font-weight: 800; padding: 6px 10px; border-radius: 8px; font-size: 14px;
+  }
+  .brand h1 { font-size: 18px; font-weight: 800; letter-spacing: 0.5px; }
+  .free-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--green);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700;
+  }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  select, button, input[type="number"] {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  input[type="number"] { cursor: text; width: 88px; text-align: center; font-family: monospace; }
+  button:hover, select:hover, input[type="number"]:hover { border-color: var(--cyan); }
+  button.active { background: var(--cyan); color: #090D16; border-color: var(--cyan); }
+  .live-ticker {
+    display: flex; align-items: center; gap: 10px;
+    background: #0B1220; border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 10px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .dot.closed { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .price-val { font-size: 18px; font-weight: 800; font-family: monospace; color: var(--cyan); }
+  .container { max-width: 1320px; margin: 18px auto; padding: 0 16px; display: grid; gap: 16px; }
+  .weekend-banner {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    color: #FDE68A;
+    padding: 10px 16px;
+    border-radius: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .main-grid { display: grid; grid-template-columns: 1fr 445px; gap: 16px; }
+  @media (max-width: 1020px) { .main-grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .card-header {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .card-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .tf-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tf-btn { padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+  .chart-wrapper {
+    background: #FFFFFF;
+    border: 2px solid #CBD5E1;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  canvas { display: block; width: 100%; }
+  .gann-bar {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 8px; margin-top: 12px;
+  }
+  .gann-pill {
+    background: #0B1220; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-size: 12px;
+  }
+  .gann-pill span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 2px; }
+  .gann-pill strong { color: var(--text); font-family: monospace; font-size: 12.5px; }
+
+  .schools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 10px;
+  }
+  .school-box {
+    background: #0B1220;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .school-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }
+  .school-name { font-size: 13px; font-weight: 800; color: #E2E8F0; }
+  .school-tag {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-family: monospace;
+  }
+  .tag-bull { background: rgba(16, 185, 129, 0.18); color: var(--green); border: 1px solid rgba(16,185,129,0.4); }
+  .tag-bear { background: rgba(239, 68, 68, 0.18); color: var(--red); border: 1px solid rgba(239,68,68,0.4); }
+  .tag-neu  { background: rgba(245, 158, 11, 0.16); color: var(--amber); border: 1px solid rgba(245,158,11,0.35); }
+  .school-detail { font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+  .school-metric { font-size: 11.5px; color: var(--cyan); font-family: monospace; font-weight: 700; }
+
+  .signal-card {
+    border: 2px solid var(--border);
+    background: linear-gradient(180deg, #111827 0%, #0B1220 100%);
+  }
+  .signal-card.buy { border-color: var(--green); box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+  .signal-card.sell { border-color: var(--red); box-shadow: 0 0 20px rgba(239, 68, 68, 0.15); }
+  .status-box {
+    padding: 12px; border-radius: 10px; text-align: center;
+    background: #0B1220; border: 1px dashed var(--border); margin-bottom: 10px;
+  }
+  .status-badge {
+    display: inline-block; padding: 5px 14px; border-radius: 999px;
+    font-weight: 800; font-size: 12.5px; margin-bottom: 5px;
+  }
+  .badge-wait { background: rgba(245, 158, 11, 0.18); color: var(--amber); }
+  .badge-buy { background: rgba(16, 185, 129, 0.2); color: var(--green); }
+  .badge-sell { background: rgba(239, 68, 68, 0.2); color: var(--red); }
+
+  .lot-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    background: #0B1220; border: 1px solid var(--border); border-radius: 9px;
+    padding: 8px 12px; margin-bottom: 10px; font-size: 12px;
+  }
+  .lot-presets { display: flex; gap: 4px; }
+  .lot-chip {
+    padding: 3px 8px; font-size: 11px; border-radius: 6px;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
+  }
+  .lot-chip.active { background: var(--cyan); color: #090D16; border-color: var(--cyan); }
+
+  .checklist { display: grid; gap: 5px; margin: 10px 0; }
+  .check-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #0B1220; border: 1px solid var(--border);
+    padding: 6px 10px; border-radius: 8px; font-size: 11.5px;
+  }
+  .check-ok { color: var(--green); font-weight: 700; }
+  .check-no { color: var(--muted); }
+
+  .entry-sl-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+  }
+  .lvl-box {
+    background: #0B1220; border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px; text-align: center;
+  }
+  .lvl-box small { display: block; color: var(--muted); font-size: 11px; margin-bottom: 2px; }
+  .lvl-box strong { font-family: monospace; font-size: 14px; display: block; }
+  .lvl-profit { font-size: 11px; font-family: monospace; font-weight: 700; margin-top: 2px; display: block; }
+
+  .be-banner {
+    margin-top: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 700;
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    color: #A5F3FC;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .be-banner.active {
+    background: rgba(16, 185, 129, 0.16);
+    border-color: var(--green);
+    color: #A7F3D0;
+  }
+
+  .tp4-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px;
+  }
+  .tp-card {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tp-card.hit {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: var(--green);
+  }
+  .tp-left small { display: block; color: #A7F3D0; font-size: 11px; font-weight: 700; }
+  .tp-left strong { font-family: monospace; font-size: 13px; color: #FFFFFF; }
+  .tp-right { text-align: left; }
+  .tp-usd { font-family: monospace; font-size: 12px; font-weight: 800; color: var(--green); display: block; }
+  .tp-pips { font-family: monospace; font-size: 10px; color: var(--muted); }
+
+  .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .btn-win { background: rgba(16,185,129,0.2); border-color: var(--green); color: var(--green); }
+  .btn-loss { background: rgba(239,68,68,0.2); border-color: var(--red); color: var(--red); }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+  .stat-card {
+    background: #0B1220; border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px; text-align: center;
+  }
+  .stat-card span { display: block; font-size: 11px; color: var(--muted); }
+  .stat-card strong { font-size: 17px; font-family: monospace; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td { padding: 9px 8px; border-bottom: 1px solid var(--border); text-align: center; }
+  th { color: var(--muted); font-weight: 700; background: #0B1220; }
+  .toast-container {
+    position: fixed; bottom: 18px; left: 18px; z-index: 999;
+    display: flex; flex-direction: column; gap: 8px; max-width: 340px;
+  }
+  .toast {
+    background: #1E293B; border-right: 4px solid var(--cyan); color: #fff;
+    padding: 12px 14px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.45);
+    font-size: 13px; font-weight: 600; animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo-badge">QA AI</div>
+    <div>
+      <h1 id="appTitle">QUANTUM ALPHA AI</h1>
+      <span class="free-badge" id="freeBadge">دقة إغلاق شمعة + ATR ديناميكي + تأمين Break-Even + منع المطاردة + Cooldown • حفظ دائم</span>
+    </div>
+  </div>
+
+  <div class="live-ticker">
+    <span class="dot" id="feedDot"></span>
+    <span id="feedSource" style="font-size:12px;color:#94A3B8;">BINANCE LIVE</span>
+    <span class="price-val" id="livePrice">---</span>
+  </div>
+
+  <div class="controls">
+    <select id="symbolSelect">
+      <optgroup label="🥇 المعادن الثمينة والصناعية (Metals)">
+        <option value="XAUUSD" selected>XAU/USD (الذهب)</option>
+        <option value="XAGUSD">XAG/USD (الفضة)</option>
+        <option value="XPTUSD">XPT/USD (البلاتين)</option>
+        <option value="XPDUSD">XPD/USD (البلاديوم)</option>
+        <option value="XCUUSD">XCU/USD (النحاس)</option>
+      </optgroup>
+      <optgroup label="📈 المؤشرات الأمريكية (Indices)">
+        <option value="NAS100">NAS100 (الناسداك)</option>
+        <option value="US30">US30 (الداو جونز)</option>
+      </optgroup>
+      <optgroup label="₿ الكريبتو اللحظي 24/7 (Binance)">
+        <option value="BTCUSDT">BTC/USD (البيتكوين)</option>
+        <option value="ETHUSDT">ETH/USD (الإيثيريوم)</option>
+        <option value="SOLUSDT">SOL/USD (سولانا)</option>
+      </optgroup>
+      <optgroup label="💱 الفوركس (Forex)">
+        <option value="EURUSD">EUR/USD</option>
+        <option value="GBPUSD">GBP/USD</option>
+      </optgroup>
+    </select>
+    <button id="soundBtn" onclick="handleSoundButtonClick()">🔔 التنبيهات: مفعلة</button>
+    <button id="langBtn" onclick="toggleLang()">EN</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="weekend-banner" id="weekendBanner">
+    <span id="weekendText">⚠️ تنبيه السوق: المعادن (الذهب والفضة) والمؤشرات (الناسداك والداو) والفوركس في إجازة نهاية الأسبوع — الأسعار معروضة على آخر إغلاق رسمي، بينما الكريبتو يعمل لحظياً 24/7.</span>
+    <span id="weekendCountdown" style="font-family:monospace;color:#fff;"></span>
+  </div>
+
+  <div class="main-grid">
+    <!-- Left: White Chart + Black Price Labels + Thin TP/SL Lines + Sub-indicators -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span id="chartHeading">شارت السكالبينج المتكامل (موجي + فني + نماذج + مؤسسات + ICT/SMC)</span>
+        </div>
+        <div class="tf-group" id="tfGroup">
+          <button class="tf-btn active" data-tf="1m">M1</button>
+          <button class="tf-btn" data-tf="5m">M5</button>
+          <button class="tf-btn" data-tf="15m">M15</button>
+          <button class="tf-btn" data-tf="1h">H1</button>
+          <button class="tf-btn" data-tf="4h">H4</button>
+          <button class="tf-btn" data-tf="1d">D1</button>
+        </div>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="mainChart" height="390"></canvas>
+        <canvas id="subChart" height="150" style="border-top:1px solid #CBD5E1;"></canvas>
+      </div>
+
+      <div class="gann-bar" id="gannBar">
+        <div class="gann-pill"><span>نقطة التحكم (POC)</span><strong id="pocVal">---</strong></div>
+        <div class="gann-pill"><span>مدى التذبذب ATR(14)</span><strong id="atrVal">---</strong></div>
+        <div class="gann-pill"><span>مربع التسعة (Sq9)</span><strong id="sq9Val">---</strong></div>
+        <div class="gann-pill"><span>توازن جان 50%</span><strong id="gann50Val">---</strong></div>
+        <div class="gann-pill"><span>موجة إليوت الحالية</span><strong id="waveSummaryVal">---</strong></div>
+      </div>
+    </div>
+
+    <!-- Right: Precision Filtered Scalping Card + 4 Close Scalping Targets -->
+    <div class="card signal-card" id="signalCard">
+      <div class="card-header">
+        <div class="card-title" id="signalCardTitle">⚡ كارت السكالبينج (4 أهداف قريبة)</div>
+        <span id="confluenceScore" style="font-family:monospace;font-weight:800;color:var(--cyan);">0 / 6 (0%)</span>
+      </div>
+
+      <div class="status-box">
+        <div class="status-badge badge-wait" id="signalBadge">⏳ انتظار توافق شروط الدخول الدقيقة</div>
+        <div id="signalSubtext" style="font-size:12px;color:var(--muted);">يُشترط إغلاق شمعة قوية + موجة دافعة + عدم مطاردة السعر + ≥ 4/6 شروط</div>
+      </div>
+
+      <!-- Lot Size Control (Default 0.01 Lot) -->
+      <div class="lot-bar">
+        <span style="font-weight:700;color:#CBD5E1;" id="lblLot">حجم اللوت (Lot):</span>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="number" id="lotInput" value="0.01" min="0.01" max="100" step="0.01" onchange="updateLotSize(this.value)" oninput="updateLotSize(this.value)" />
+          <div class="lot-presets">
+            <button type="button" class="lot-chip active" onclick="setLotPreset(0.01, this)">0.01</button>
+            <button type="button" class="lot-chip" onclick="setLotPreset(0.05, this)">0.05</button>
+            <button type="button" class="lot-chip" onclick="setLotPreset(0.10, this)">0.10</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry & Stop Loss -->
+      <div class="entry-sl-grid">
+        <div class="lvl-box">
+          <small id="lblEntry">سعر الدخول (Entry)</small>
+          <strong id="valEntry" style="color:var(--cyan);">---</strong>
+          <span class="lvl-profit" id="entryModeTag" style="color:var(--amber);">بانتظار إشارة</span>
+        </div>
+        <div class="lvl-box" style="border-color:rgba(239,68,68,0.4);">
+          <small id="lblSL">وقف الخسارة (SL)</small>
+          <strong id="valSL" style="color:var(--red);">---</strong>
+          <span class="lvl-profit" id="valSLUsd" style="color:var(--red);">-$0.00</span>
+        </div>
+      </div>
+
+      <!-- Break-Even Protection Status -->
+      <div class="be-banner" id="beBanner">
+        <span id="beStatusText">🛡️ تأمين الصفقة (Break-Even): يُفعّل تلقائياً بعد ضرب TP1</span>
+        <strong id="beLevelVal" style="font-family:monospace;">---</strong>
+      </div>
+
+      <!-- 4 Visible Close Scalping Targets (TP1 - TP4) + USD Profits -->
+      <div style="margin-top:10px;font-size:12px;font-weight:700;color:#A7F3D0;display:flex;justify-content:space-between;">
+        <span id="lblTargetsHeader">🎯 الأهداف الـ 4 القريبة للسكالبينج والأرباح المتوقعة:</span>
+        <span id="totalProfitBadge" style="font-family:monospace;color:var(--green);">TP4: +$0.00</span>
+      </div>
+      <div class="tp4-grid" id="tp4Container">
+        <div class="tp-card" id="tpCard1">
+          <div class="tp-left"><small>TP1 (هدف 1 قريب)</small><strong id="valTP1">---</strong></div>
+          <div class="tp-right"><span class="tp-usd" id="usdTP1">+$0.00</span><span class="tp-pips" id="ptsTP1">0 pts</span></div>
+        </div>
+        <div class="tp-card" id="tpCard2">
+          <div class="tp-left"><small>TP2 (هدف 2 قريب)</small><strong id="valTP2">---</strong></div>
+          <div class="tp-right"><span class="tp-usd" id="usdTP2">+$0.00</span><span class="tp-pips" id="ptsTP2">0 pts</span></div>
+        </div>
+        <div class="tp-card" id="tpCard3">
+          <div class="tp-left"><small>TP3 (هدف 3 قريب)</small><strong id="valTP3">---</strong></div>
+          <div class="tp-right"><span class="tp-usd" id="usdTP3">+$0.00</span><span class="tp-pips" id="ptsTP3">0 pts</span></div>
+        </div>
+        <div class="tp-card" id="tpCard4">
+          <div class="tp-left"><small>TP4 (هدف 4 سكالبينج)</small><strong id="valTP4">---</strong></div>
+          <div class="tp-right"><span class="tp-usd" id="usdTP4">+$0.00</span><span class="tp-pips" id="ptsTP4">0 pts</span></div>
+        </div>
+      </div>
+
+      <div class="checklist" id="checklist"></div>
+
+      <div class="action-row">
+        <button class="btn-win" onclick="closeManualTrade('WIN')" id="btnWin">✅ تسجيل ربح (WIN)</button>
+        <button class="btn-loss" onclick="closeManualTrade('LOSS')" id="btnLoss">❌ تسجيل خسارة (LOSS)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schools Analysis Section: Wave, Technical, Chart Patterns, Institutional, ICT & SMC -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="schoolsHeading">🧠 رادار المدارس التحليلية المتكاملة (موجي • فني • نماذج فنية • مؤسسات • ICT • SMC)</div>
+      <span id="overallSchoolsBias" style="font-family:monospace;font-size:12px;font-weight:800;color:var(--cyan);">تقييم المدارس: ---</span>
+    </div>
+    <div class="schools-grid" id="schoolsGrid"></div>
+  </div>
+
+  <!-- Trades History -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title" id="historyTitle">📜 سجل الصفقات الدائم (Trades History)</div>
+      <button onclick="resetHistory()" style="font-size:12px;color:var(--amber);">🗑️ تصفير السجل</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><span id="lblWinRate">نسبة النجاح</span><strong id="statWinRate" style="color:var(--green);">0.0%</strong></div>
+      <div class="stat-card"><span id="lblWL">ربح / خسارة</span><strong id="statWL" style="color:var(--amber);">0W / 0L</strong></div>
+      <div class="stat-card"><span id="lblPnL">صافي العائد</span><strong id="statPnL" style="color:var(--cyan);">$0.00</strong></div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>الوقت</th>
+            <th>الزوج</th>
+            <th>النوع</th>
+            <th>اللوت</th>
+            <th>الدخول</th>
+            <th>الستوب</th>
+            <th>TP1 → TP4</th>
+            <th>النتيجة</th>
+            <th>العائد ($)</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const HISTORY_KEY = 'qa_trades_history_v9';
+const ACTIVE_TRADES_KEY = 'qa_active_trades_v9';
+const COOLDOWN_KEY = 'qa_cooldown_v9';
+const COOLDOWN_MS = 5 * 60 * 1000; // 5 دقائق تهدئة بعد ضرب الستوب
+
+const INSTRUMENTS = {
+  XAUUSD: { name: 'الذهب Gold',       type: 'METAL',  decimals: 2, base: 2635.50, tpStep: 0.70,  slStep: 1.20,  usdPerPointAt1Lot: 100 },
+  XAGUSD: { name: 'الفضة Silver',     type: 'METAL',  decimals: 3, base: 30.850,  tpStep: 0.030, slStep: 0.050, usdPerPointAt1Lot: 5000 },
+  XPTUSD: { name: 'البلاتين Plat',    type: 'METAL',  decimals: 2, base: 942.40,  tpStep: 0.90,  slStep: 1.40,  usdPerPointAt1Lot: 100 },
+  XPDUSD: { name: 'البلاديوم Pallad', type: 'METAL',  decimals: 2, base: 968.20,  tpStep: 1.00,  slStep: 1.60,  usdPerPointAt1Lot: 100 },
+  XCUUSD: { name: 'النحاس Copper',    type: 'METAL',  decimals: 4, base: 4.1250,  tpStep: 0.0040,slStep: 0.0065,usdPerPointAt1Lot: 25000 },
+  NAS100: { name: 'الناسداك NAS100',  type: 'INDEX',  decimals: 2, base: 21045.50,tpStep: 6.00,  slStep: 10.00, usdPerPointAt1Lot: 20 },
+  US30:   { name: 'الداو جونز US30',  type: 'INDEX',  decimals: 2, base: 43890.00,tpStep: 10.00, slStep: 16.00, usdPerPointAt1Lot: 10 },
+  BTCUSDT:{ name: 'بيتكوين BTC',      type: 'CRYPTO', decimals: 2, base: 91250.00,tpStep: 35.00, slStep: 55.00, usdPerPointAt1Lot: 1 },
+  ETHUSDT:{ name: 'إيثيريوم ETH',     type: 'CRYPTO', decimals: 2, base: 3120.00, tpStep: 2.50,  slStep: 4.20,  usdPerPointAt1Lot: 10 },
+  SOLUSDT:{ name: 'سولانا SOL',       type: 'CRYPTO', decimals: 2, base: 215.40,  tpStep: 0.30,  slStep: 0.50,  usdPerPointAt1Lot: 100 },
+  EURUSD: { name: 'يورو دولار',       type: 'FOREX',  decimals: 5, base: 1.05420, tpStep: 0.00040,slStep:0.00065,usdPerPointAt1Lot: 100000 },
+  GBPUSD: { name: 'باوند دولار',      type: 'FOREX',  decimals: 5, base: 1.26180, tpStep: 0.00045,slStep:0.00070,usdPerPointAt1Lot: 100000 }
+};
+
+let lang = 'ar';
+let soundEnabled = true;
+let audioCtx = null;
+let currentSymbol = 'XAUUSD';
+let currentTf = '1m';
+let lotSize = 0.01;
+let candles = [];
+let ws = null;
+let lastNotifiedTradeKey = null;
+
+function loadSavedJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+let tradesHistory = loadSavedJSON(HISTORY_KEY, []);
+let activeTradesBySymbol = loadSavedJSON(ACTIVE_TRADES_KEY, {});
+let cooldownBySymbol = loadSavedJSON(COOLDOWN_KEY, {});
+
+function saveTradesState() {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(tradesHistory));
+    localStorage.setItem(ACTIVE_TRADES_KEY, JSON.stringify(activeTradesBySymbol));
+    localStorage.setItem(COOLDOWN_KEY, JSON.stringify(cooldownBySymbol));
+  } catch (e) {}
+}
+
+function getCooldownRemainingSec(sym) {
+  const until = cooldownBySymbol[sym] || 0;
+  return Math.max(0, Math.ceil((until - Date.now()) / 1000));
+}
+
+const i18n = {
+  ar: {
+    freeBadge: 'دقة إغلاق شمعة + ATR ديناميكي + تأمين Break-Even + منع المطاردة + Cooldown • حفظ دائم',
+    weekendText: '⚠️ تنبيه السوق: المعادن (الذهب والفضة) والمؤشرات (الناسداك والداو) والفوركس في إجازة نهاية الأسبوع — الأسعار معروضة على آخر إغلاق رسمي، بينما الكريبتو يعمل لحظياً 24/7.',
+    chartHeading: 'شارت السكالبينج المتكامل (موجي + فني + نماذج + مؤسسات + ICT/SMC)',
+    signalCardTitle: '⚡ كارت السكالبينج (4 أهداف قريبة)',
+    schoolsHeading: '🧠 رادار المدارس التحليلية المتكاملة (موجي • فني • نماذج فنية • مؤسسات • ICT • SMC)',
+    waitSub: 'يُشترط إغلاق شمعة قوية + موجة دافعة + عدم مطاردة السعر + ≥ 4/6 شروط',
+    lockedSub: 'الصفقة ثابتة ومقفلة ولا تتغير إلا بضرب أحد الأهداف (TP1-TP4) أو وقف الخسارة (SL) • اللوت: ',
+    lblLot: 'حجم اللوت (Lot):',
+    lblEntry: 'سعر الدخول (Entry)',
+    lblSL: 'وقف الخسارة (SL)',
+    lblTargetsHeader: '🎯 الأهداف الـ 4 القريبة للسكالبينج والأرباح المتوقعة:',
+    btnWin: '✅ تسجيل ربح (WIN)',
+    btnLoss: '❌ تسجيل خسارة (LOSS)',
+    historyTitle: '📜 سجل الصفقات الدائم (Trades History)',
+    lblWinRate: 'نسبة النجاح',
+    lblWL: 'ربح / خسارة',
+    lblPnL: 'صافي العائد',
+    c1: 'إغلاق شمعة قوية + ترتيب المتوسطات (5/10/50)',
+    c2: 'زخم RSI(14) صحي بدون تشبع مطارد',
+    c3: 'تقاطع MACD(12,26,9) وخط الصفر',
+    c4: 'ارتكاز الفوليوم بروفايل (POC)',
+    c5: 'موجة دافعة + نماذج فنية واضحة',
+    c6: 'تأكيد المؤسسات و ICT / SMC'
+  },
+  en: {
+    freeBadge: 'CANDLE CLOSE + DYNAMIC ATR + BREAK-EVEN + ANTI-CHASE + COOLDOWN • PERSISTENT',
+    weekendText: '⚠️ Market Notice: Metals (Gold/Silver), Indices (NAS100/US30) & Forex are closed for the weekend — showing official close prices, while Crypto streams live 24/7.',
+    chartHeading: 'Integrated Scalping Chart (Wave + Technical + Patterns + Institutional + ICT/SMC)',
+    signalCardTitle: '⚡ Scalping Card (4 Close Targets)',
+    schoolsHeading: '🧠 Multi-School Radar (Wave • Technical • Chart Patterns • Institutional • ICT • SMC)',
+    waitSub: 'Requires strong candle close + impulse wave + anti-chase + ≥ 4/6 conditions',
+    lockedSub: 'Trade stays locked until TP1-TP4 or SL is hit • Lot: ',
+    lblLot: 'Lot Size:',
+    lblEntry: 'Entry Price',
+    lblSL: 'Stop Loss (SL)',
+    lblTargetsHeader: '🎯 4 Close Scalping Targets & Expected USD Profit:',
+    btnWin: '✅ Mark WIN',
+    btnLoss: '❌ Mark LOSS',
+    historyTitle: '📜 Persistent Trades History',
+    lblWinRate: 'Win Rate',
+    lblWL: 'Win / Loss',
+    lblPnL: 'Net PnL',
+    c1: 'Strong Candle Close + MA(5/10/50)',
+    c2: 'Healthy RSI(14) + Anti-Chase Filter',
+    c3: 'MACD(12,26,9) Zero-Line & Signal',
+    c4: 'Volume Profile POC Alignment',
+    c5: 'Impulse Wave + Chart Patterns',
+    c6: 'Institutional + ICT / SMC Confluence'
+  }
+};
+
+function ensureAudioUnlocked() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  } catch (e) {
+    return null;
+  }
+}
+
+document.addEventListener('pointerdown', () => {
+  ensureAudioUnlocked();
+}, { once: true });
+
+function playTradeAlertSound(kind = 'TRADE') {
+  if (!soundEnabled) return;
+  const ctx = ensureAudioUnlocked();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const notes = kind === 'BUY'
+      ? [{ f: 587.33, t: 0, d: 0.16 }, { f: 880.0, t: 0.14, d: 0.24 }]
+      : kind === 'SELL'
+      ? [{ f: 659.25, t: 0, d: 0.16 }, { f: 440.0, t: 0.14, d: 0.24 }]
+      : [{ f: 740.0, t: 0, d: 0.14 }, { f: 987.77, t: 0.13, d: 0.22 }];
+
+    notes.forEach(n => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(n.f, now + n.t);
+      gain.gain.setValueAtTime(0.001, now + n.t);
+      gain.gain.exponentialRampToValueAtTime(0.25, now + n.t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + n.t);
+      osc.stop(now + n.t + n.d + 0.02);
+    });
+  } catch (e) {}
+}
+
+function handleSoundButtonClick() {
+  toggleSound();
+  if (soundEnabled) {
+    ensureAudioUnlocked();
+    playTradeAlertSound('TEST');
+  }
+}
+
+function isTraditionalMarketClosed() {
+  const now = new Date();
+  const day = now.getUTCDay();
+  const hour = now.getUTCHours();
+  if (day === 6) return true;
+  if (day === 0 && hour < 22) return true;
+  if (day === 5 && hour >= 22) return true;
+  return false;
+}
+
+function updateWeekendStatus() {
+  const closed = isTraditionalMarketClosed();
+  const banner = document.getElementById('weekendBanner');
+  banner.style.display = closed ? 'flex' : 'none';
+  if (closed) {
+    const now = new Date();
+    const target = new Date(now);
+    const daysUntilSun = (7 - now.getUTCDay()) % 7;
+    target.setUTCDate(now.getUTCDate() + daysUntilSun);
+    target.setUTCHours(22, 0, 0, 0);
+    if (target <= now) target.setUTCDate(target.getUTCDate() + 7);
+    const diff = target - now;
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('weekendCountdown').textContent =
+      (lang === 'ar' ? 'يفتح السوق خلال: ' : 'Market opens in: ') +
+      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+}
+setInterval(updateWeekendStatus, 1000);
+updateWeekendStatus();
+
+function updateLotSize(val) {
+  const parsed = parseFloat(val);
+  lotSize = (!isNaN(parsed) && parsed >= 0.01) ? parsed : 0.01;
+  document.querySelectorAll('.lot-chip').forEach(btn => {
+    btn.classList.toggle('active', parseFloat(btn.textContent) === lotSize);
+  });
+  if (activeTradesBySymbol[currentSymbol]) {
+    activeTradesBySymbol[currentSymbol].lot = lotSize;
+    saveTradesState();
+  }
+  runAnalysis();
+}
+
+function setLotPreset(val, btn) {
+  lotSize = val;
+  document.getElementById('lotInput').value = val.toFixed(2);
+  document.querySelectorAll('.lot-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (activeTradesBySymbol[currentSymbol]) {
+    activeTradesBySymbol[currentSymbol].lot = lotSize;
+    saveTradesState();
+  }
+  runAnalysis();
+}
+
+function calcUsdPnL(priceDiff, sym = currentSymbol, customLot = null) {
+  const spec = INSTRUMENTS[sym] || INSTRUMENTS.XAUUSD;
+  const activeLot = customLot !== null ? customLot : lotSize;
+  return Math.abs(priceDiff) * spec.usdPerPointAt1Lot * activeLot;
+}
+
+function formatPrice(p, sym = currentSymbol) {
+  if (p === null || p === undefined || isNaN(p)) return '---';
+  const dec = (INSTRUMENTS[sym] && INSTRUMENTS[sym].decimals) || 2;
+  return p.toFixed(dec);
+}
+
+function showToast(msg, color = '#06B6D4') {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.borderRightColor = color;
+  el.textContent = msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('soundBtn').textContent = soundEnabled
+    ? (lang === 'ar' ? '🔔 التنبيهات: مفعلة' : '🔔 Alerts: ON')
+    : (lang === 'ar' ? '🔕 التنبيهات: صامت' : '🔕 Alerts: OFF');
+}
+
+function toggleLang() {
+  lang = lang === 'ar' ? 'en' : 'ar';
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  document.getElementById('langBtn').textContent = lang === 'ar' ? 'EN' : 'عربي';
+  const t = i18n[lang];
+  document.getElementById('freeBadge').textContent = t.freeBadge;
+  document.getElementById('weekendText').textContent = t.weekendText;
+  document.getElementById('chartHeading').textContent = t.chartHeading;
+  document.getElementById('signalCardTitle').textContent = t.signalCardTitle;
+  document.getElementById('schoolsHeading').textContent = t.schoolsHeading;
+  document.getElementById('lblLot').textContent = t.lblLot;
+  document.getElementById('lblEntry').textContent = t.lblEntry;
+  document.getElementById('lblSL').textContent = t.lblSL;
+  document.getElementById('lblTargetsHeader').textContent = t.lblTargetsHeader;
+  document.getElementById('btnWin').textContent = t.btnWin;
+  document.getElementById('btnLoss').textContent = t.btnLoss;
+  document.getElementById('historyTitle').textContent = t.historyTitle;
+  document.getElementById('lblWinRate').textContent = t.lblWinRate;
+  document.getElementById('lblWL').textContent = t.lblWL;
+  document.getElementById('lblPnL').textContent = t.lblPnL;
+  document.getElementById('soundBtn').textContent = soundEnabled
+    ? (lang === 'ar' ? '🔔 التنبيهات: مفعلة' : '🔔 Alerts: ON')
+    : (lang === 'ar' ? '🔕 التنبيهات: صامت' : '🔕 Alerts: OFF');
+  renderHistory();
+  runAnalysis();
+}
+
+function calcSMA(data, period) {
+  return data.map((_, idx) => {
+    if (idx < period - 1) return null;
+    let sum = 0;
+    for (let i = idx - period + 1; i <= idx; i++) sum += data[i].close;
+    return sum / period;
+  });
+}
+
+function calcEMAArray(values, period) {
+  const k = 2 / (period + 1);
+  let ema = values[0];
+  return values.map((v, i) => {
+    if (i === 0) return v;
+    ema = v * k + ema * (1 - k);
+    return ema;
+  });
+}
+
+function calcATR(data, period = 14) {
+  if (data.length < 2) return 0;
+  const trs = [];
+  for (let i = 1; i < data.length; i++) {
+    const cur = data[i];
+    const prev = data[i - 1];
+    const tr = Math.max(cur.high - cur.low, Math.abs(cur.high - prev.close), Math.abs(cur.low - prev.close));
+    trs.push(tr);
+  }
+  const slice = trs.slice(-period);
+  return slice.reduce((a, b) => a + b, 0) / (slice.length || 1);
+}
+
+function calcRSI(data, period = 14) {
+  const rsi = new Array(data.length).fill(50);
+  if (data.length <= period) return rsi;
+  let gains = 0, losses = 0;
+  for (let i = 1; i <= period; i++) {
+    const diff = data[i].close - data[i - 1].close;
+    if (diff >= 0) gains += diff; else losses -= diff;
+  }
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
+  rsi[period] = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+  for (let i = period + 1; i < data.length; i++) {
+    const diff = data[i].close - data[i - 1].close;
+    const g = diff > 0 ? diff : 0;
+    const l = diff < 0 ? -diff : 0;
+    avgGain = (avgGain * (period - 1) + g) / period;
+    avgLoss = (avgLoss * (period - 1) + l) / period;
+    rsi[i] = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+  }
+  return rsi;
+}
+
+function calcMACD(data) {
+  const closes = data.map(c => c.close);
+  const ema12 = calcEMAArray(closes, 12);
+  const ema26 = calcEMAArray(closes, 26);
+  const macdLine = closes.map((_, i) => ema12[i] - ema26[i]);
+  const signalLine = calcEMAArray(macdLine, 9);
+  const hist = macdLine.map((m, i) => m - signalLine[i]);
+  return { macdLine, signalLine, hist };
+}
+
+function calcVolumeProfile(data, bins = 24) {
+  let min = Infinity, max = -Infinity;
+  data.forEach(c => { if (c.low < min) min = c.low; if (c.high > max) max = c.high; });
+  const step = (max - min) / bins || 1;
+  const profile = Array.from({ length: bins }, (_, i) => ({
+    price: min + step * (i + 0.5),
+    vol: 0
+  }));
+  data.forEach(c => {
+    const idx = Math.min(bins - 1, Math.max(0, Math.floor((c.close - min) / step)));
+    profile[idx].vol += (c.volume || 1);
+  });
+  let poc = profile[0];
+  profile.forEach(p => { if (p.vol > poc.vol) poc = p; });
+  return { profile, poc: poc.price, min, max };
+}
+
+function isStrongCandle(bar, dir) {
+  const range = bar.high - bar.low;
+  if (range <= 0) return false;
+  const body = Math.abs(bar.close - bar.open);
+  const bodyRatio = body / range;
+  if (bodyRatio < 0.45) return false;
+  if (dir === 'BUY') {
+    const upperWick = bar.high - Math.max(bar.open, bar.close);
+    return bar.close > bar.open && upperWick <= body * 0.85;
+  } else {
+    const lowerWick = Math.min(bar.open, bar.close) - bar.low;
+    return bar.close < bar.open && lowerWick <= body * 0.85;
+  }
+}
+
+function analyzeSchools(data, ma5, ma10, ma50, rsi, macdLine, signalLine, hist, vp, gann50) {
+  const n = data.length - 1;
+  const closedIdx = Math.max(1, n - 1);
+  const closedBar = data[closedIdx];
+  const prevClosed = data[closedIdx - 1] || closedBar;
+  const price = closedBar.close;
+
+  const slice40 = data.slice(Math.max(0, closedIdx - 39), closedIdx + 1);
+  const hi40 = Math.max(...slice40.map(c => c.high));
+  const lo40 = Math.min(...slice40.map(c => c.low));
+  const waveSpan = (hi40 - lo40) || 1;
+  const posInWave = (price - lo40) / waveSpan;
+  let waveLabel = 'موجة تصحيحية (Wave 2/4)';
+  let waveBias = 'NEUTRAL';
+  if (posInWave >= 0.65 && closedBar.close > closedBar.open) {
+    waveLabel = 'موجة صاعدة دافعة (Wave 3/5)';
+    waveBias = 'BUY';
+  } else if (posInWave <= 0.35 && closedBar.close < closedBar.open) {
+    waveLabel = 'موجة هابطة دافعة (Wave C/3)';
+    waveBias = 'SELL';
+  }
+
+  const techBull = ma5[closedIdx] > ma10[closedIdx] && ma10[closedIdx] > ma50[closedIdx] && rsi[closedIdx] > 54 && macdLine[closedIdx] > signalLine[closedIdx];
+  const techBear = ma5[closedIdx] < ma10[closedIdx] && ma10[closedIdx] < ma50[closedIdx] && rsi[closedIdx] < 46 && macdLine[closedIdx] < signalLine[closedIdx];
+  const techBias = techBull ? 'BUY' : techBear ? 'SELL' : 'NEUTRAL';
+  const techLabel = techBull ? 'اتجاه فني صاعد مؤكد بإغلاق' : techBear ? 'اتجاه فني هابط مؤكد بإغلاق' : 'تذبذب فني محايد';
+
+  const recent12 = data.slice(Math.max(0, closedIdx - 11), closedIdx + 1);
+  const hi12 = Math.max(...recent12.map(c => c.high));
+  const lo12 = Math.min(...recent12.map(c => c.low));
+  const range12 = (hi12 - lo12) || 1;
+  const bullEngulf = closedBar.close > closedBar.open && prevClosed.close < prevClosed.open && closedBar.close > prevClosed.open && closedBar.open <= prevClosed.close;
+  const bearEngulf = closedBar.close < closedBar.open && prevClosed.close > prevClosed.open && closedBar.close < prevClosed.open && closedBar.open >= prevClosed.close;
+  let patternName = 'نطاق عرضي / مراقبة';
+  let patternBias = 'NEUTRAL';
+  if (bullEngulf || (price > lo12 + range12 * 0.75 && closedBar.close > closedBar.open)) {
+    patternName = bullEngulf ? 'ابتلاع شرائي مؤكد بإغلاق' : 'اختراق قناة صاعدة بإغلاق';
+    patternBias = 'BUY';
+  } else if (bearEngulf || (price < lo12 + range12 * 0.25 && closedBar.close < closedBar.open)) {
+    patternName = bearEngulf ? 'ابتلاع بيعي مؤكد بإغلاق' : 'كسر قناة هابطة بإغلاق';
+    patternBias = 'SELL';
+  }
+
+  const volSlice = data.slice(Math.max(0, closedIdx - 19), closedIdx + 1);
+  const sumPV = volSlice.reduce((acc, c) => acc + ((c.high + c.low + c.close) / 3) * (c.volume || 1), 0);
+  const sumV = volSlice.reduce((acc, c) => acc + (c.volume || 1), 0) || 1;
+  const vwap = sumPV / sumV;
+  const avgVol = sumV / volSlice.length;
+  const volSpike = (closedBar.volume || 1) >= avgVol * 1.15;
+  const instBias = (price > vwap && price > vp.poc && volSpike) ? 'BUY' : (price < vwap && price < vp.poc && volSpike) ? 'SELL' : 'NEUTRAL';
+  const instLabel = instBias === 'BUY' ? 'تجميع مؤسسي شراء' : instBias === 'SELL' ? 'تصريف مؤسسي بيع' : 'تمركز مؤسسي متوازن';
+
+  const prev2Closed = data[Math.max(0, closedIdx - 2)];
+  const bullFVG = closedBar.low > prev2Closed.high;
+  const bearFVG = closedBar.high < prev2Closed.low;
+  const bullSweep = closedBar.low < prevClosed.low && closedBar.close > prevClosed.low && closedBar.close > closedBar.open;
+  const bearSweep = closedBar.high > prevClosed.high && closedBar.close < prevClosed.high && closedBar.close < closedBar.open;
+  let ictName = 'توازن سيولة ICT';
+  let ictBias = 'NEUTRAL';
+  if (bullFVG || bullSweep) {
+    ictName = bullFVG ? 'فجوة سعرية صاعدة (Bullish FVG)' : 'سحب سيولة سفلي وإغلاق صاعد';
+    ictBias = 'BUY';
+  } else if (bearFVG || bearSweep) {
+    ictName = bearFVG ? 'فجوة سعرية هابطة (Bearish FVG)' : 'سحب سيولة علوي وإغلاق هابط';
+    ictBias = 'SELL';
+  }
+
+  const bullBOS = closedBar.close > prevClosed.high && closedBar.close > closedBar.open;
+  const bearBOS = closedBar.close < prevClosed.low && closedBar.close < closedBar.open;
+  const smcBias = bullBOS ? 'BUY' : bearBOS ? 'SELL' : 'NEUTRAL';
+  const smcName = bullBOS ? 'كسر هيكل صاعد بإغلاق (BOS)' : bearBOS ? 'كسر هيكل هابط بإغلاق (CHoCH/BOS)' : 'إعادة اختبار Order Block';
+
+  const schools = [
+    { name: 'التحليل الموجي (Elliott Wave)', bias: waveBias, metric: `موضع الموجة: ${(posInWave * 100).toFixed(0)}%`, detail: waveLabel },
+    { name: 'التحليل الفني (Technical)', bias: techBias, metric: `RSI ${rsi[closedIdx].toFixed(1)} | MACD ${macdLine[closedIdx] >= signalLine[closedIdx] ? '+' : '-'}`, detail: techLabel },
+    { name: 'النماذج الفنية (Chart Patterns)', bias: patternBias, metric: `نطاق 12 شمعة: ${formatPrice(lo12)} - ${formatPrice(hi12)}`, detail: patternName },
+    { name: 'المؤسسات (Institutional)', bias: instBias, metric: `VWAP ${formatPrice(vwap)} ${volSpike ? '• فوليوم مرتفع' : ''}`, detail: instLabel },
+    { name: 'مدرسة ICT', bias: ictBias, metric: `FVG/Liquidity Radar`, detail: ictName },
+    { name: 'مدرسة SMC', bias: smcBias, metric: `POC ${formatPrice(vp.poc)}`, detail: smcName }
+  ];
+
+  const buyVotes = schools.filter(s => s.bias === 'BUY').length;
+  const sellVotes = schools.filter(s => s.bias === 'SELL').length;
+
+  return { schools, waveLabel, buyVotes, sellVotes, closedIdx };
+}
+
+function renderSchools(schoolState) {
+  const grid = document.getElementById('schoolsGrid');
+  const { schools, buyVotes, sellVotes } = schoolState;
+  const biasText = buyVotes > sellVotes
+    ? `توافق شرائي (${buyVotes}/6 مدارس)`
+    : sellVotes > buyVotes
+    ? `توافق بيعي (${sellVotes}/6 مدارس)`
+    : `توازن (${buyVotes} شراء / ${sellVotes} بيع)`;
+
+  document.getElementById('overallSchoolsBias').textContent = biasText;
+  document.getElementById('overallSchoolsBias').style.color =
+    buyVotes >= 4 ? '#10B981' : sellVotes >= 4 ? '#EF4444' : '#F59E0B';
+
+  grid.innerHTML = schools.map(s => {
+    const cls = s.bias === 'BUY' ? 'tag-bull' : s.bias === 'SELL' ? 'tag-bear' : 'tag-neu';
+    const txt = s.bias === 'BUY' ? 'BUY / صاعد' : s.bias === 'SELL' ? 'SELL / هابط' : 'NEUTRAL / مراقبة';
+    return `
+      <div class="school-box">
+        <div class="school-top">
+          <span class="school-name">${s.name}</span>
+          <span class="school-tag ${cls}">${txt}</span>
+        </div>
+        <div class="school-detail">${s.detail}</div>
+        <div class="school-metric">${s.metric}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadMarketData() {
+  if (ws) { try { ws.close(); } catch (e) {} ws = null; }
+  const spec = INSTRUMENTS[currentSymbol] || INSTRUMENTS.XAUUSD;
+  const dot = document.getElementById('feedDot');
+  const src = document.getElementById('feedSource');
+
+  if (spec.type === 'CRYPTO') {
+    dot.classList.remove('closed');
+    src.textContent = 'BINANCE LIVE 24/7';
+    try {
+      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${currentTf}&limit=100`);
+      const raw = await res.json();
+      candles = raw.map(k => ({
+        time: k[0],
+        open: parseFloat(k[1]),
+        high: parseFloat(k[2]),
+        low: parseFloat(k[3]),
+        close: parseFloat(k[4]),
+        volume: parseFloat(k[5])
+      }));
+      const latestClose = candles[candles.length - 1].close;
+      updatePriceDisplay(latestClose);
+      checkAllActiveTradesTP_SL();
+      runAnalysis();
+      startBinanceWS();
+    } catch (e) {
+      buildDeterministicCandles(spec.base);
+    }
+  } else {
+    const closed = isTraditionalMarketClosed();
+    dot.classList.toggle('closed', closed);
+    src.textContent = closed
+      ? (lang === 'ar' ? 'إغلاق السوق (إجازة)' : 'MARKET CLOSED (WEEKEND)')
+      : 'LIVE FEED';
+    buildDeterministicCandles(spec.base);
+  }
+}
+
+function buildDeterministicCandles(closePrice) {
+  candles = [];
+  const spec = INSTRUMENTS[currentSymbol] || INSTRUMENTS.XAUUSD;
+  const step = spec.tpStep * 0.45;
+  let p = closePrice - step * 3;
+  for (let i = 0; i < 90; i++) {
+    const wave = Math.sin(i * 0.28) * step + Math.cos(i * 0.13) * (step * 0.6);
+    const open = p;
+    const close = i === 89 ? closePrice : (closePrice + wave);
+    const high = Math.max(open, close) + step * 0.35;
+    const low = Math.min(open, close) - step * 0.35;
+    candles.push({
+      time: Date.now() - (90 - i) * 60000,
+      open,
+      high,
+      low,
+      close,
+      volume: 150 + (i % 7) * 45
+    });
+    p = close;
+  }
+  updatePriceDisplay(closePrice);
+  runAnalysis();
+}
+
+function startBinanceWS() {
+  const sym = currentSymbol.toLowerCase();
+  ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${sym}@aggTrade/${sym}@kline_${currentTf}`);
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (!msg.data || !candles.length) return;
+    if (msg.data.e === 'aggTrade') {
+      const price = parseFloat(msg.data.p);
+      const qty = parseFloat(msg.data.q);
+      const last = candles[candles.length - 1];
+      last.close = price;
+      if (price > last.high) last.high = price;
+      if (price < last.low) last.low = price;
+      last.volume += qty;
+      updatePriceDisplay(price);
+      checkActiveTradeTP_SL(currentSymbol, price);
+      runAnalysis();
+    } else if (msg.data.e === 'kline') {
+      const k = msg.data.k;
+      const bar = {
+        time: k.t,
+        open: parseFloat(k.o),
+        high: parseFloat(k.h),
+        low: parseFloat(k.l),
+        close: parseFloat(k.c),
+        volume: parseFloat(k.v)
+      };
+      if (candles[candles.length - 1].time === bar.time) {
+        candles[candles.length - 1] = bar;
+      } else {
+        candles.push(bar);
+        if (candles.length > 110) candles.shift();
+      }
+      checkActiveTradeTP_SL(currentSymbol, bar.close);
+      runAnalysis();
+    }
+  };
+}
+
+function updatePriceDisplay(price) {
+  document.getElementById('livePrice').textContent = formatPrice(price);
+}
+
+function computeScalpingLevels(dir, entryPrice, atrVal = 0, sym = currentSymbol) {
+  const spec = INSTRUMENTS[sym] || INSTRUMENTS.XAUUSD;
+  const mult = dir === 'BUY' ? 1 : -1;
+
+  const dynTpStep = atrVal > 0
+    ? Math.min(spec.tpStep * 1.8, Math.max(spec.tpStep * 0.65, atrVal * 0.45))
+    : spec.tpStep;
+
+  const dynSlStep = atrVal > 0
+    ? Math.min(spec.slStep * 1.8, Math.max(spec.slStep * 0.75, atrVal * 0.85))
+    : spec.slStep;
+
+  const sl = entryPrice - mult * dynSlStep;
+  const tps = [1, 2, 3, 4].map(i => entryPrice + mult * (dynTpStep * i));
+  return { entry: entryPrice, sl, tps };
+}
+
+function getEffectiveSL(trade) {
+  if (!trade) return null;
+  if ((trade.highestTpReached || 0) >= 1) {
+    return trade.entry;
+  }
+  return trade.sl;
+}
+
+function openStrictLockedTradeIfQualified(sym, entryPrice, dir, score, isImpulseWave, isAntiChaseOk, atrVal, pocAligned = true) {
+  if (activeTradesBySymbol[sym]) {
+    return activeTradesBySymbol[sym];
+  }
+  if (getCooldownRemainingSec(sym) > 0) {
+    return null;
+  }
+  if (score < 5 || !pocAligned || !isImpulseWave || !isAntiChaseOk) {
+    return null;
+  }
+  const lvls = computeScalpingLevels(dir, entryPrice, atrVal, sym);
+  const trade = {
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    symbol: sym,
+    dir,
+    lot: lotSize,
+    entry: lvls.entry,
+    sl: lvls.sl,
+    tps: lvls.tps,
+    highestTpReached: 0,
+    lockedUntilHit: true
+  };
+  activeTradesBySymbol[sym] = trade;
+  saveTradesState();
+
+  const key = `${sym}_${dir}_${formatPrice(lvls.entry, sym)}`;
+  if (key !== lastNotifiedTradeKey) {
+    lastNotifiedTradeKey = key;
+    playTradeAlertSound(dir);
+  }
+  showToast(
+    lang === 'ar'
+      ? `🔒 تم فتح وقفل صفقة سكالبينج دقيقة (${dir}) بإغلاق شمعة وموجة دافعة (${score}/6) على ${sym}`
+      : `🔒 Opened & Locked Precision ${dir} (${score}/6 + Impulse) on ${sym}`,
+    dir === 'BUY' ? '#10B981' : '#EF4444'
+  );
+  return trade;
+}
+
+function runAnalysis() {
+  if (candles.length < 55) return;
+  const n = candles.length - 1;
+  const closedIdx = Math.max(1, n - 1);
+  const closedBar = candles[closedIdx];
+  const price = closedBar.close;
+
+  const ma5 = calcSMA(candles, 5);
+  const ma10 = calcSMA(candles, 10);
+  const ma50 = calcSMA(candles, 50);
+  const atr = calcATR(candles.slice(Math.max(0, closedIdx - 20), closedIdx + 1), 14);
+  const rsi = calcRSI(candles, 14);
+  const { macdLine, signalLine, hist } = calcMACD(candles);
+  const vp = calcVolumeProfile(candles.slice(Math.max(0, closedIdx - 59), closedIdx + 1));
+
+  const slice30 = candles.slice(Math.max(0, closedIdx - 29), closedIdx + 1);
+  const hi30 = Math.max(...slice30.map(c => c.high));
+  const lo30 = Math.min(...slice30.map(c => c.low));
+  const gann50 = (hi30 + lo30) / 2;
+  const gann1x1 = lo30 + ((hi30 - lo30) * (25 / 30));
+  const root = Math.sqrt(Math.max(price, 0.0001));
+  const sq9Res = Math.pow(root + 0.125, 2);
+  const sq9Sup = Math.pow(Math.max(root - 0.125, 0.01), 2);
+
+  const schoolState = analyzeSchools(candles, ma5, ma10, ma50, rsi, macdLine, signalLine, hist, vp, gann50);
+  renderSchools(schoolState);
+
+  document.getElementById('pocVal').textContent = formatPrice(vp.poc);
+  document.getElementById('atrVal').textContent = formatPrice(atr);
+  document.getElementById('sq9Val').textContent = `${formatPrice(sq9Sup)} / ${formatPrice(sq9Res)}`;
+  document.getElementById('gann50Val').textContent = formatPrice(gann50);
+  document.getElementById('waveSummaryVal').textContent = schoolState.waveLabel;
+
+  const strongBullCandle = isStrongCandle(closedBar, 'BUY');
+  const strongBearCandle = isStrongCandle(closedBar, 'SELL');
+
+  const bullMA = strongBullCandle && ma5[closedIdx] > ma10[closedIdx] && ma10[closedIdx] > ma50[closedIdx] && price > ma50[closedIdx];
+  const bearMA = strongBearCandle && ma5[closedIdx] < ma10[closedIdx] && ma10[closedIdx] < ma50[closedIdx] && price < ma50[closedIdx];
+
+  const maxStretch = atr > 0 ? atr * 1.4 : Math.abs(price - (ma10[closedIdx] || price)) * 1.1;
+  const bullAntiChase = Math.abs(price - (ma10[closedIdx] || price)) <= maxStretch && rsi[closedIdx] < 72;
+  const bearAntiChase = Math.abs(price - (ma10[closedIdx] || price)) <= maxStretch && rsi[closedIdx] > 28;
+
+  const bullRSI = rsi[closedIdx] > 54 && bullAntiChase;
+  const bearRSI = rsi[closedIdx] < 46 && bearAntiChase;
+  const bullMACD = macdLine[closedIdx] > signalLine[closedIdx] && hist[closedIdx] > 0 && macdLine[closedIdx] > 0;
+  const bearMACD = macdLine[closedIdx] < signalLine[closedIdx] && hist[closedIdx] < 0 && macdLine[closedIdx] < 0;
+
+  // اعتماد POC في اتجاه الصفقة: الشراء يتطلب السعر أعلى/عند POC وباتجاه صاعد، والبيع يتطلب السعر أسفل/عند POC وباتجاه هابط
+  const bullPOC = price >= vp.poc && closedBar.close >= closedBar.open;
+  const bearPOC = price <= vp.poc && closedBar.close <= closedBar.open;
+
+  const bullWavePattern = schoolState.schools[0].bias === 'BUY' && schoolState.schools[2].bias === 'BUY';
+  const bearWavePattern = schoolState.schools[0].bias === 'SELL' && schoolState.schools[2].bias === 'SELL';
+  const bullInstIctSmc = schoolState.buyVotes >= 4 && price >= gann50;
+  const bearInstIctSmc = schoolState.sellVotes >= 4 && price <= gann50;
+
+  // 7 شروط تشمل اعتماد POC في اتجاه الصفقة
+  const bullChecks = [bullMA, bullRSI, bullMACD, bullPOC, bullWavePattern, bullInstIctSmc, bullPOC && schoolState.schools[3].bias === 'BUY'];
+  const bearChecks = [bearMA, bearRSI, bearMACD, bearPOC, bearWavePattern, bearInstIctSmc, bearPOC && schoolState.schools[3].bias === 'SELL'];
+  const bullScore = bullChecks.filter(Boolean).length;
+  const bearScore = bearChecks.filter(Boolean).length;
+
+  const biasDir = bullScore >= bearScore ? 'BUY' : 'SELL';
+  const activeChecks = bullScore >= bearScore ? bullChecks : bearChecks;
+  const score = Math.max(bullScore, bearScore);
+  const pocAligned = biasDir === 'BUY' ? bullPOC : bearPOC;
+  const isImpulseWave = biasDir === 'BUY'
+    ? schoolState.schools[0].bias === 'BUY'
+    : schoolState.schools[0].bias === 'SELL';
+  const isAntiChaseOk = biasDir === 'BUY' ? bullAntiChase : bearAntiChase;
+
+  // يشترط توافق ≥ 5 من 7 مع اعتماد POC في اتجاه الصفقة وموجة دافعة ومنع مطاردة
+  const isQualified = score >= 5 && pocAligned && isImpulseWave && isAntiChaseOk;
+  const lockedTrade = isQualified
+    ? openStrictLockedTradeIfQualified(currentSymbol, price, biasDir, score, isImpulseWave, isAntiChaseOk, atr, pocAligned)
+    : (activeTradesBySymbol[currentSymbol] || null);
+
+  let displayLevels = null;
+  if (lockedTrade) {
+    displayLevels = {
+      entry: lockedTrade.entry,
+      sl: getEffectiveSL(lockedTrade),
+      baseSl: lockedTrade.sl,
+      tps: lockedTrade.tps,
+      dir: lockedTrade.dir,
+      isLocked: true,
+      beActive: (lockedTrade.highestTpReached || 0) >= 1
+    };
+  }
+
+  renderTradeCard(activeChecks, score, displayLevels, lockedTrade, isImpulseWave, isAntiChaseOk, pocAligned);
+  drawCharts({ ma5, ma10, ma50, rsi, macdLine, signalLine, hist, vp, gann50, gann1x1, displayLevels });
+}
+
+function renderTradeCard(checks, score, levels, lockedTrade, isImpulseWave, isAntiChaseOk, pocAligned) {
+  const t = i18n[lang];
+  const totalChecks = checks.length;
+  const labels = [
+    t.c1,
+    t.c2,
+    t.c3,
+    lang === 'ar' ? 'اعتماد نقطة التحكم POC في اتجاه الصفقة' : 'POC Directional Alignment',
+    t.c5,
+    t.c6,
+    lang === 'ar' ? 'تأكيد السيولة والمؤسسات مع POC' : 'Institutional + POC Confluence'
+  ];
+  const pct = Math.round((score / totalChecks) * 100);
+  document.getElementById('confluenceScore').textContent = `${score} / ${totalChecks} (${pct}%)`;
+
+  document.getElementById('checklist').innerHTML = labels.map((lbl, i) => `
+    <div class="check-item">
+      <span>${lbl}</span>
+      <span class="${checks[i] ? 'check-ok' : 'check-no'}">${checks[i] ? '✔ متطابق' : '0 / انتظار'}</span>
+    </div>
+  `).join('');
+
+  const card = document.getElementById('signalCard');
+  const badge = document.getElementById('signalBadge');
+  const sub = document.getElementById('signalSubtext');
+  const entryTag = document.getElementById('entryModeTag');
+  const tradeLot = (lockedTrade && lockedTrade.lot) || lotSize;
+  const cdSec = getCooldownRemainingSec(currentSymbol);
+
+  const zeroAllCardValues = () => {
+    document.getElementById('valEntry').textContent = '0';
+    document.getElementById('valSL').textContent = '0';
+    document.getElementById('valSLUsd').textContent = '$0.00';
+    document.getElementById('beLevelVal').textContent = '0';
+    document.getElementById('totalProfitBadge').textContent = 'TP4: $0.00';
+    for (let num = 1; num <= 4; num++) {
+      document.getElementById(`valTP${num}`).textContent = '0';
+      document.getElementById(`usdTP${num}`).textContent = '$0.00';
+      document.getElementById(`ptsTP${num}`).textContent = '0 pts';
+      document.getElementById(`tpCard${num}`).classList.remove('hit');
+    }
+  };
+
+  if (lockedTrade && levels) {
+    card.className = `card signal-card ${levels.dir === 'BUY' ? 'buy' : 'sell'}`;
+    badge.className = `status-badge ${levels.dir === 'BUY' ? 'badge-buy' : 'badge-sell'}`;
+    badge.textContent = levels.dir === 'BUY'
+      ? (lang === 'ar' ? `🔒 صفقة شراء دقيقة مقفلة (${currentSymbol})` : `🔒 LOCKED BUY (${currentSymbol})`)
+      : (lang === 'ar' ? `🔒 صفقة بيع دقيقة مقفلة (${currentSymbol})` : `🔒 LOCKED SELL (${currentSymbol})`);
+    sub.textContent = `${t.lockedSub}${tradeLot.toFixed(2)} Lot`;
+    entryTag.textContent = levels.beActive
+      ? (lang === 'ar' ? 'مؤمّنة Break-Even' : 'BREAK-EVEN LOCKED')
+      : (lang === 'ar' ? 'مقفلة حتى TP/SL' : 'LOCKED TP/SL');
+    entryTag.style.color = '#10B981';
+
+    document.getElementById('valEntry').textContent = formatPrice(levels.entry);
+    document.getElementById('valSL').textContent = formatPrice(levels.sl);
+    const slRiskUsd = calcUsdPnL(levels.entry - levels.baseSl, currentSymbol, tradeLot);
+    document.getElementById('valSLUsd').textContent = levels.beActive
+      ? (lang === 'ar' ? 'مؤمّن على الدخول ($0.00)' : 'BE Protected ($0.00)')
+      : `-$${slRiskUsd.toFixed(2)}`;
+
+    const beBanner = document.getElementById('beBanner');
+    beBanner.classList.toggle('active', !!levels.beActive);
+    document.getElementById('beStatusText').textContent = levels.beActive
+      ? (lang === 'ar' ? '🛡️ الصفقة مؤمّنة بالكامل عند نقطة الدخول (Break-Even)' : '🛡️ Trade Protected at Break-Even')
+      : (lang === 'ar' ? '🛡️ تأمين الصفقة (Break-Even): يُفعّل تلقائياً بعد ضرب TP1' : '🛡️ Break-Even: Auto-activates after TP1');
+    document.getElementById('beLevelVal').textContent = formatPrice(levels.entry);
+
+    const spec = INSTRUMENTS[currentSymbol] || INSTRUMENTS.XAUUSD;
+    const curPrice = candles[candles.length - 1]?.close || levels.entry;
+    let tp4Usd = 0;
+
+    levels.tps.forEach((tpVal, idx) => {
+      const num = idx + 1;
+      const diff = Math.abs(tpVal - levels.entry);
+      const usd = calcUsdPnL(diff, currentSymbol, tradeLot);
+      if (num === 4) tp4Usd = usd;
+      const pts = Math.round(diff * Math.pow(10, spec.decimals));
+
+      document.getElementById(`valTP${num}`).textContent = formatPrice(tpVal);
+      document.getElementById(`usdTP${num}`).textContent = `+$${usd.toFixed(2)}`;
+      document.getElementById(`ptsTP${num}`).textContent = `${pts} pts`;
+
+      const hit = lockedTrade && ((lockedTrade.highestTpReached >= num) ||
+        (levels.dir === 'BUY' ? curPrice >= tpVal : curPrice <= tpVal));
+      document.getElementById(`tpCard${num}`).classList.toggle('hit', !!hit);
+    });
+
+    document.getElementById('totalProfitBadge').textContent = `TP4: +$${tp4Usd.toFixed(2)}`;
+    return;
+  }
+
+  // لا يوجد تطابق كافٍ أو صفقة مفعلة: تصفير كامل لكل بيانات الكرت
+  zeroAllCardValues();
+  const beBanner = document.getElementById('beBanner');
+  beBanner.classList.remove('active');
+  document.getElementById('beStatusText').textContent =
+    lang === 'ar' ? '🛡️ تأمين الصفقة (Break-Even): زيرو لحين وجود صفقة وتوافق' : '🛡️ Break-Even: Zero until match & active trade';
+
+  if (cdSec > 0) {
+    card.className = 'card signal-card';
+    badge.className = 'status-badge badge-wait';
+    badge.textContent = lang === 'ar'
+      ? `🧊 فترة تهدئة بعد الستوب (${cdSec} ثانية) — الكرت زيرو`
+      : `🧊 POST-SL COOLDOWN (${cdSec}s) — CARD ZERO`;
+    sub.textContent = lang === 'ar'
+      ? 'لا توجد صفقة حالياً — كل القيم زيرو حتى انتهاء فترة التهدئة وظهور توافق كامل'
+      : 'No active trade — all card values stay zero until cooldown ends and full match occurs';
+    entryTag.textContent = '0';
+    entryTag.style.color = '#F59E0B';
+  } else {
+    card.className = 'card signal-card';
+    badge.className = 'status-badge badge-wait';
+    const extraHint = !pocAligned
+      ? (lang === 'ar' ? ' • بانتظار اعتماد POC في الاتجاه' : ' • awaiting POC alignment')
+      : !isImpulseWave
+      ? (lang === 'ar' ? ' • بانتظار موجة دافعة' : ' • awaiting impulse')
+      : !isAntiChaseOk
+      ? (lang === 'ar' ? ' • منع مطاردة السعر' : ' • anti-chase filter')
+      : '';
+    badge.textContent = lang === 'ar'
+      ? `0 / لا يوجد تطابق كافٍ — الكرت زيرو (${score}/${totalChecks})${extraHint}`
+      : `0 / NO FULL MATCH — CARD ZERO (${score}/${totalChecks})${extraHint}`;
+    sub.textContent = lang === 'ar'
+      ? 'طالما مفيش توافق وتطابق كامل كل شيء في الكرت زيرو — أول ما يحصل تطابق تظهر الصفقة وأهدافها'
+      : 'While there is no full match, all card values are zero — once matched, entry, SL & targets appear';
+    entryTag.textContent = '0';
+    entryTag.style.color = '#94A3B8';
+  }
+}
+
+function checkAllActiveTradesTP_SL() {
+  if (!candles.length) return;
+  const curPrice = candles[candles.length - 1].close;
+  checkActiveTradeTP_SL(currentSymbol, curPrice);
+}
+
+function checkActiveTradeTP_SL(sym, price) {
+  const trade = activeTradesBySymbol[sym];
+  if (!trade) return;
+
+  const isBuy = trade.dir === 'BUY';
+  for (let i = 0; i < trade.tps.length; i++) {
+    const tpNum = i + 1;
+    const tpHit = isBuy ? price >= trade.tps[i] : price <= trade.tps[i];
+    if (tpHit && (trade.highestTpReached || 0) < tpNum) {
+      trade.highestTpReached = tpNum;
+      saveTradesState();
+      playTradeAlertSound('BUY');
+      showToast(
+        lang === 'ar'
+          ? `🎯 تم ضرب الهدف TP${tpNum} على ${sym}${tpNum === 1 ? ' وتم تأمين الستوب (Break-Even)' : ''}`
+          : `🎯 Hit TP${tpNum} on ${sym}${tpNum === 1 ? ' + Break-Even active' : ''}`,
+        '#10B981'
+      );
+    }
+  }
+
+  const activeSL = getEffectiveSL(trade);
+  const tp4Hit = isBuy ? price >= trade.tps[3] : price <= trade.tps[3];
+  const slHit = isBuy ? price <= activeSL : price >= activeSL;
+
+  if (tp4Hit) {
+    settleTrade(sym, 'WIN', trade.tps[3], 'TP4');
+  } else if (slHit) {
+    const isBE = (trade.highestTpReached || 0) >= 1;
+    settleTrade(sym, isBE ? 'WIN' : 'LOSS', activeSL, isBE ? 'BE' : 'SL');
+  }
+}
+
+function closeManualTrade(res) {
+  const trade = activeTradesBySymbol[currentSymbol];
+  if (!trade) {
+    showToast(
+      lang === 'ar' ? 'لا توجد صفقة مفتوحة حالياً — انتظر اكتمال شروط الفلترة الدقيقة' : 'No active trade yet — wait for precision filter conditions',
+      '#F59E0B'
+    );
+    return;
+  }
+  const exitPrice = res === 'WIN' ? trade.tps[3] : getEffectiveSL(trade);
+  settleTrade(currentSymbol, res, exitPrice, res === 'WIN' ? 'TP4' : 'SL');
+}
+
+function settleTrade(sym, result, exitPrice, triggerLabel) {
+  const trade = activeTradesBySymbol[sym];
+  if (!trade) return;
+
+  const usedLot = trade.lot || lotSize;
+  let pnl = 0;
+  if (triggerLabel === 'BE') {
+    pnl = 0;
+  } else if (result === 'WIN') {
+    pnl = calcUsdPnL(Math.abs(trade.tps[3] - trade.entry), sym, usedLot);
+  } else {
+    pnl = -calcUsdPnL(Math.abs(trade.entry - trade.sl), sym, usedLot);
+    cooldownBySymbol[sym] = Date.now() + COOLDOWN_MS;
+  }
+
+  tradesHistory.unshift({
+    ...trade,
+    lot: usedLot,
+    result,
+    exitPrice,
+    triggerLabel,
+    closedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+    pnl
+  });
+
+  delete activeTradesBySymbol[sym];
+  saveTradesState();
+
+  playTradeAlertSound(result === 'WIN' ? 'BUY' : 'SELL');
+  showToast(
+    triggerLabel === 'BE'
+      ? (lang === 'ar' ? `🛡️ أغلقت الصفقة على نقطة الدخول (Break-Even) بدون خسارة` : `🛡️ Closed at Break-Even ($0.00)`)
+      : result === 'WIN'
+      ? (lang === 'ar' ? `🎉 تم ضرب الهدف (${triggerLabel}) وحفظ الربح (+$${pnl.toFixed(2)}) في الهيستوري` : `🎉 Hit ${triggerLabel} & Saved WIN (+$${pnl.toFixed(2)})`)
+      : (lang === 'ar' ? `⚠️ تم ضرب الستوب (${triggerLabel}) وحفظ الخسارة (-$${Math.abs(pnl).toFixed(2)}) + تفعيل تهدئة 5 دقائق` : `⚠️ Hit ${triggerLabel} (-$${Math.abs(pnl).toFixed(2)}) + 5m cooldown`),
+    result === 'WIN' ? '#10B981' : '#EF4444'
+  );
+
+  renderHistory();
+  runAnalysis();
+}
+
+function resetHistory() {
+  tradesHistory = [];
+  cooldownBySymbol = {};
+  saveTradesState();
+  renderHistory();
+  showToast(lang === 'ar' ? 'تم تصفير سجل الصفقات المحفوظة' : 'Saved trades history cleared', '#F59E0B');
+}
+
+function renderHistory() {
+  const body = document.getElementById('historyBody');
+  let wins = 0, losses = 0, net = 0;
+  tradesHistory.forEach(tr => {
+    if (tr.pnl > 0 || tr.result === 'WIN') wins++;
+    else if (tr.pnl < 0) losses++;
+    net += tr.pnl;
+  });
+  const total = wins + losses;
+  const wr = total ? ((wins / total) * 100).toFixed(1) : '0.0';
+  document.getElementById('statWinRate').textContent = `${wr}%`;
+  document.getElementById('statWL').textContent = `${wins}W / ${losses}L`;
+  document.getElementById('statPnL').textContent = `${net >= 0 ? '+' : '-'}$${Math.abs(net).toFixed(2)}`;
+  document.getElementById('statPnL').style.color = net >= 0 ? '#10B981' : '#EF4444';
+
+  if (!tradesHistory.length) {
+    body.innerHTML = `<tr><td colspan="9" style="color:#94A3B8;padding:18px;">${lang === 'ar' ? 'لا توجد صفقات مغلقة بعد — تُفتح الصفقة فقط عند تحقق شروط الفلترة الدقيقة وتُحفظ هنا عند ضرب TP أو SL' : 'No closed trades yet — trades open only when precision filter conditions pass and persist here on TP or SL'}</td></tr>`;
+    return;
+  }
+  body.innerHTML = tradesHistory.map(tr => `
+    <tr>
+      <td>${tr.closedAt || tr.time}</td>
+      <td><strong>${tr.symbol}</strong></td>
+      <td style="color:${tr.dir==='BUY'?'#10B981':'#EF4444'};font-weight:700;">${tr.dir}</td>
+      <td style="font-family:monospace;">${(tr.lot || 0.01).toFixed(2)}</td>
+      <td style="font-family:monospace;">${formatPrice(tr.entry, tr.symbol)}</td>
+      <td style="font-family:monospace;color:#EF4444;">${formatPrice(tr.sl, tr.symbol)}</td>
+      <td style="font-family:monospace;color:#10B981;">${formatPrice(tr.tps[0], tr.symbol)} → ${formatPrice(tr.tps[3], tr.symbol)}</td>
+      <td><span style="padding:2px 8px;border-radius:6px;background:${tr.pnl>=0?'rgba(16,185,129,0.2)':'rgba(239,68,68,0.2)'};color:${tr.pnl>=0?'#10B981':'#EF4444'};font-weight:700;">${tr.result} (${tr.triggerLabel || ''})</span></td>
+      <td style="font-family:monospace;color:${tr.pnl>=0?'#10B981':'#EF4444'};font-weight:700;">${tr.pnl>=0?'+':'-'}$${Math.abs(tr.pnl).toFixed(2)}</td>
+    </tr>
+  `).join('');
+}
+
+function drawCharts({ ma5, ma10, ma50, rsi, macdLine, signalLine, hist, vp, gann50, gann1x1, displayLevels }) {
+  const c1 = document.getElementById('mainChart');
+  const dpr = window.devicePixelRatio || 1;
+  const w = c1.parentElement.clientWidth;
+  const h = 390;
+  c1.width = w * dpr;
+  c1.height = h * dpr;
+  const ctx = c1.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, w, h);
+
+  const visible = candles.slice(-65);
+  const startIdx = candles.length - visible.length;
+  const rightMargin = 86;
+  const chartW = w - rightMargin;
+  const padTop = 24, padBot = 24;
+  const plotH = h - padTop - padBot;
+
+  let minP = Infinity, maxP = -Infinity;
+  visible.forEach(c => { if (c.low < minP) minP = c.low; if (c.high > maxP) maxP = c.high; });
+  if (displayLevels && displayLevels.isLocked) {
+    minP = Math.min(minP, displayLevels.sl, displayLevels.baseSl, ...displayLevels.tps);
+    maxP = Math.max(maxP, displayLevels.sl, displayLevels.baseSl, ...displayLevels.tps);
+  }
+  const range = (maxP - minP) || 1;
+  minP -= range * 0.08;
+  maxP += range * 0.08;
+  const yOf = p => padTop + ((maxP - p) / (maxP - minP)) * plotH;
+
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 0.8;
+  ctx.fillStyle = '#000000';
+  ctx.font = '10.5px monospace';
+  for (let i = 0; i <= 5; i++) {
+    const p = minP + ((maxP - minP) * i) / 5;
+    const y = yOf(p);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(chartW, y); ctx.stroke();
+    ctx.fillText(formatPrice(p), chartW + 6, y + 4);
+  }
+
+  const maxVol = Math.max(...vp.profile.map(b => b.vol)) || 1;
+  vp.profile.forEach(b => {
+    const y = yOf(b.price);
+    const barW = (b.vol / maxVol) * 60;
+    ctx.fillStyle = Math.abs(b.price - vp.poc) < 0.0001 ? 'rgba(139, 92, 246, 0.28)' : 'rgba(6, 182, 212, 0.12)';
+    ctx.fillRect(0, y - 3.5, barW, 7);
+  });
+
+  const pocY = yOf(vp.poc);
+  ctx.strokeStyle = '#8B5CF6';
+  ctx.lineWidth = 0.75;
+  ctx.setLineDash([2, 4]);
+  ctx.beginPath(); ctx.moveTo(0, pocY); ctx.lineTo(chartW, pocY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#000000';
+  ctx.font = '10px monospace';
+  ctx.fillText(`POC ${formatPrice(vp.poc)}`, 8, pocY - 3);
+
+  const stepX = chartW / visible.length;
+  visible.forEach((c, idx) => {
+    const x = idx * stepX + stepX * 0.5;
+    const isUp = c.close >= c.open;
+    ctx.strokeStyle = isUp ? '#059669' : '#DC2626';
+    ctx.fillStyle = isUp ? '#10B981' : '#EF4444';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(x, yOf(c.high)); ctx.lineTo(x, yOf(c.low)); ctx.stroke();
+    const top = yOf(Math.max(c.open, c.close));
+    const bot = yOf(Math.min(c.open, c.close));
+    ctx.fillRect(x - stepX * 0.3, top, Math.max(2, stepX * 0.6), Math.max(2, bot - top));
+  });
+
+  const drawMA = (arr, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    let started = false;
+    visible.forEach((_, idx) => {
+      const val = arr[startIdx + idx];
+      if (val === null) return;
+      const x = idx * stepX + stepX * 0.5;
+      const y = yOf(val);
+      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  };
+  drawMA(ma5, '#059669');
+  drawMA(ma10, '#475569');
+  drawMA(ma50, '#D97706');
+
+  const tradeLot = (activeTradesBySymbol[currentSymbol] && activeTradesBySymbol[currentSymbol].lot) || lotSize;
+
+  if (displayLevels && displayLevels.isLocked) {
+    const lines = [
+      { p: displayLevels.entry, col: '#0284C7', lbl: `ENTRY (${displayLevels.dir})` },
+      { p: displayLevels.sl,    col: displayLevels.beActive ? '#059669' : '#DC2626', lbl: displayLevels.beActive ? 'BE SL ($0.00)' : `SL (-$${calcUsdPnL(displayLevels.entry - displayLevels.baseSl, currentSymbol, tradeLot).toFixed(2)})` },
+      ...displayLevels.tps.map((tp, i) => ({
+        p: tp,
+        col: '#059669',
+        lbl: `TP${i+1} (+$${calcUsdPnL(tp - displayLevels.entry, currentSymbol, tradeLot).toFixed(2)})`
+      }))
+    ];
+
+    lines.forEach(line => {
+      const y = yOf(line.p);
+      ctx.save();
+      ctx.setLineDash([2, 4]);
+      ctx.strokeStyle = line.col;
+      ctx.lineWidth = 0.75;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(chartW, y); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#000000';
+      ctx.font = '9.5px monospace';
+      ctx.fillText(`${line.lbl}: ${formatPrice(line.p)}`, 6, y - 2.5);
+      ctx.restore();
+    });
+  }
+
+  const lastP = visible[visible.length - 1].close;
+  const lastY = yOf(lastP);
+  ctx.fillStyle = '#E2E8F0';
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1;
+  ctx.fillRect(chartW + 2, lastY - 9, rightMargin - 4, 18);
+  ctx.strokeRect(chartW + 2, lastY - 9, rightMargin - 4, 18);
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 10.5px monospace';
+  ctx.fillText(formatPrice(lastP), chartW + 5, lastY + 3.5);
+
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 11.5px monospace';
+  ctx.fillText(`${currentSymbol} [${currentTf.toUpperCase()}]  Price: ${formatPrice(lastP)}  |  Lot: ${tradeLot.toFixed(2)}  |  Precision v7`, 10, 16);
+
+  const c2 = document.getElementById('subChart');
+  const h2 = 150;
+  c2.width = w * dpr;
+  c2.height = h2 * dpr;
+  const ctx2 = c2.getContext('2d');
+  ctx2.scale(dpr, dpr);
+  ctx2.fillStyle = '#FFFFFF';
+  ctx2.fillRect(0, 0, w, h2);
+
+  const rsiH = 70;
+  ctx2.strokeStyle = '#94A3B8';
+  ctx2.lineWidth = 0.8;
+  ctx2.setLineDash([3, 4]);
+  ctx2.beginPath(); ctx2.moveTo(0, rsiH / 2); ctx2.lineTo(chartW, rsiH / 2); ctx2.stroke();
+  ctx2.setLineDash([]);
+  ctx2.fillStyle = '#000000';
+  ctx2.font = '10px monospace';
+  ctx2.fillText(`RSI(14): ${rsi[candles.length - 1].toFixed(2)} (Mid 50.00)`, 8, 12);
+
+  ctx2.strokeStyle = '#D97706';
+  ctx2.lineWidth = 1.3;
+  ctx2.beginPath();
+  visible.forEach((_, idx) => {
+    const val = rsi[startIdx + idx];
+    const x = idx * stepX + stepX * 0.5;
+    const y = rsiH - (val / 100) * rsiH;
+    if (idx === 0) ctx2.moveTo(x, y); else ctx2.lineTo(x, y);
+  });
+  ctx2.stroke();
+
+  const macdTop = 78;
+  const macdH = 66;
+  const midM = macdTop + macdH / 2;
+  ctx2.strokeStyle = '#CBD5E1';
+  ctx2.lineWidth = 0.8;
+  ctx2.beginPath(); ctx2.moveTo(0, midM); ctx2.lineTo(chartW, midM); ctx2.stroke();
+
+  const visHist = visible.map((_, idx) => hist[startIdx + idx]);
+  const maxM = Math.max(...visHist.map(v => Math.abs(v))) || 1;
+  visible.forEach((_, idx) => {
+    const v = visHist[idx];
+    const x = idx * stepX + stepX * 0.5;
+    const barH = (v / maxM) * (macdH * 0.45);
+    ctx2.fillStyle = v >= 0 ? '#10B981' : '#EF4444';
+    ctx2.fillRect(x - stepX * 0.25, v >= 0 ? midM - barH : midM, Math.max(2, stepX * 0.5), Math.abs(barH));
+  });
+  ctx2.fillStyle = '#000000';
+  ctx2.fillText(`MACD(12,26,9): ${macdLine[candles.length - 1].toFixed(2)}`, 8, macdTop + 11);
+}
+
+setInterval(() => {
+  if (getCooldownRemainingSec(currentSymbol) > 0 || activeTradesBySymbol[currentSymbol]) {
+    runAnalysis();
+  }
+}, 1000);
+
+document.getElementById('symbolSelect').addEventListener('change', (e) => {
+  currentSymbol = e.target.value;
+  loadMarketData();
+});
+
+document.querySelectorAll('.tf-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTf = btn.dataset.tf;
+    loadMarketData();
+  });
+});
+
+window.addEventListener('resize', () => runAnalysis());
+
+renderHistory();
+loadMarketData();
+</script>
+</body>
+</html>
